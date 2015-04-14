@@ -362,7 +362,11 @@ function UseHandCarousel() {
         };
         
         $.fn.handCarousel = function(options) {
-            return new HandCarousel(this, options);
+            if (!this[0].__handCarousel) {
+                $.extend(this[0], {__handCarousel: new HandCarousel(this, options)});
+            }
+            
+            return this[0].__handCarousel;
         };
     }(jQuery));
 
