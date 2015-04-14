@@ -37,6 +37,7 @@ function UseHandCarousel() {
                 console.error('Hand.js is required for HandCarousel to work!');
                 return false;
             }
+            
 
             
             var _this = this;
@@ -160,7 +161,7 @@ function UseHandCarousel() {
                 hcTriggerCallbacks('afterDomBuilt', this);
             };
             
-            this.correctifyCarouselDims = function(transitionTimeMs) {
+            this.correctifyCarouselDims = function(transitionTimeMs, slideType) {
                 this.Locks.lock('slide');
                 //TODO: dont forget to use will-change in the css!
                 //set size and pos of virtual dom elements!
@@ -180,6 +181,13 @@ function UseHandCarousel() {
                 
                 for (var i=0; i<elementsCount; i++) {
                     var isDirectNeighborOfActive = i-1==halfElementsCount || i+1==halfElementsCount || i==halfElementsCount;
+                    if (slideType=='left') {
+                        //goes from right to left, so right neighbour must be visible and left should not!
+                        isDirectNeighborOfActive = isDirectNeighborOfActive &&  (i-1!=halfElementsCount);
+                    } else if (slideType=='right') {
+                        isDirectNeighborOfActive = isDirectNeighborOfActive &&  (i+1!=halfElementsCount);
+                    }
+                    
                     this.slideableElementsVirtual[i]
                     .css({
                         'width': this.lastDims.width+'px',
@@ -218,7 +226,7 @@ function UseHandCarousel() {
                     setTimeout(function(){
                         _this.forAnySlide(function(){
                             //console.log($(this).css('transition'));
-                            $(this).css('transition','none');
+                            $(this).css('transition','none').css('display','block');
                         });
                         _this.Locks.unlock('slide');
                     }, transitionTimeMs ? transitionTimeMs : 0);
@@ -276,7 +284,7 @@ function UseHandCarousel() {
                     //snap back, dont change order!
                 }
                 
-                this.correctifyCarouselDims(_options.animationDurationMs);
+                this.correctifyCarouselDims(_options.animationDurationMs, type);
                 setTimeout(function(){
                     hcTriggerCallbacks('slided', _this.getActiveSlide());
                 },_options.animationDurationMs);
@@ -302,14 +310,19 @@ function UseHandCarousel() {
             
             
             //NOW do the bindings
-            $(window).on(this.nsp('resize'), function(){
-                _this.__onResize();
-            });
+            
             
             var Pointer = {
                 down: false,
             };
-            $('body').on(this.nsp('pointerup pointermove pointerleave pointerdown'), '#'+this.carouselId, function(e){
+            
+            var bodyNsp = this.nsp('pointerup pointermove pointerleave pointerdown');
+            var windNsp = this.nsp('resize');
+            $(window).on(windNsp, function(){
+                _this.__onResize();
+            });
+            
+            $('body').on(bodyNsp, '#'+this.carouselId, function(e){
                 console.debug(e);
 
                 if (_this.Locks.isLocked('slide')) {
@@ -359,6 +372,15 @@ function UseHandCarousel() {
                     Pointer.down = false;
                 }
             });
+            
+            this.destroy = function() {
+                $('body').off(bodyNsp);
+                $(window).off(windNsp);
+                this.slideableElementsRessource = [];
+                this.slideableElementsVirtual = [];
+                this.el.html('');
+                delete this.el[0].__handCarousel;
+            };
         };
         
         $.fn.handCarousel = function(options) {
@@ -367,6 +389,14 @@ function UseHandCarousel() {
             }
             
             return this[0].__handCarousel;
+        };
+        
+        $.fn.isHandCarousel = function(){
+            try {
+                return !!this[0].__handCarousel;
+            } catch (e) {
+                return false;
+            }
         };
     }(jQuery));
 
