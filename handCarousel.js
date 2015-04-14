@@ -54,7 +54,7 @@ function UseHandCarousel() {
             }, _options.on);
 
             //Callback-trigger function
-            var hcTriggerCallbacks = function(name, data) {for (var i in this.callbacks[name]) {this.callbacks[name][i](data);}};
+            var hcTriggerCallbacks = function(name, data) {for (var i in _this.callbacks[name]) {_this.callbacks[name][i](data);}};
             //Uuid Generator
             var newUuid = function() { return 'uuid_'+Math.floor(Math.random()*1000)+'_'+(Math.ceil(Math.random()*100)); };
 
