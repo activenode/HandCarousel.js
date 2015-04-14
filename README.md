@@ -10,9 +10,9 @@ Support for Chrome, Firefox, Safari, iOS, Android, IE>8, ... Modern Browsers ;)
 
 ## Howto 
 HandCarousel.js can be loaded either with/before/after JQuery is available since it is wrapped inside a function.
-**Make sure that you have JQuery and Hand.js in your website**.
+**Make sure that you have JQuery and Hand.js loaded in your website**.
 
-HandCarousel will work out of the box but it will **NOT** style/design your slider. You can style it as you would normally. The DOM structure is not changed. 
+HandCarousel will work out of the box but it will **NOT** style/design your slider. You can style it as you would normally. *The DOM structure is not changed*. 
 
     ...
     <body>
