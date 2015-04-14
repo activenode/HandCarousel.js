@@ -97,9 +97,9 @@ function UseHandCarousel() {
             this.lastDims = {width: null,height: null};        
             this.getLastDims = function() {
                 this.lastDims = {
-                    width: wrapper.width(),
-                    height: wrapper.height(),
-                    offset: wrapper.offset()
+                    width: elem.width(),
+                    height: elem.height(),
+                    offset: elem.offset()
                 };
             };
             this.getLastDims();
