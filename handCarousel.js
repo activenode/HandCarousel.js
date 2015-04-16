@@ -286,7 +286,7 @@ function UseHandCarousel() {
                 
                 this.correctifyCarouselDims(_options.animationDurationMs, type);
                 setTimeout(function(){
-                    hcTriggerCallbacks('slided', {slide: _this.getActiveSlide(), handCarousel: _this});
+                    hcTriggerCallbacks('slided', _this.getActiveSlide());
                 },_options.animationDurationMs);
             };
             
