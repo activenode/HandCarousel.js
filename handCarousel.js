@@ -234,7 +234,7 @@ function UseHandCarousel() {
             };
             this.rebuild = function() {
                 this.rebuildCarouselDom();
-                this.correctifyCarouselDims();
+                this.slide();
             };
             
             
@@ -251,7 +251,7 @@ function UseHandCarousel() {
                 _this.slideableElementsRessource.push($(this).clone(true));
             });
             this.el.html('');
-            this.rebuild();
+            
             
             
             
@@ -286,7 +286,7 @@ function UseHandCarousel() {
                 
                 this.correctifyCarouselDims(_options.animationDurationMs, type);
                 setTimeout(function(){
-                    hcTriggerCallbacks('slided', _this.getActiveSlide());
+                    hcTriggerCallbacks('slided', {slide: _this.getActiveSlide(), handCarousel: _this});
                 },_options.animationDurationMs);
             };
             
@@ -311,7 +311,7 @@ function UseHandCarousel() {
             
             //NOW do the bindings
             
-            
+            this.rebuild();
             var Pointer = {
                 down: false,
             };
