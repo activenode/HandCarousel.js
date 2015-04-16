@@ -129,6 +129,10 @@ function UseHandCarousel() {
                 $(this.slideableElementsVirtual).each(eachFunc);
             };
             
+            this.countSlides = function() {
+                return this.slideableElementsRessource.length;
+            };
+            
             
             
             this.rebuildCarouselDom = function() {
