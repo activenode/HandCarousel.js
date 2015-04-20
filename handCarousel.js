@@ -41,7 +41,13 @@ function UseHandCarousel() {
 
             
             var _this = this;
-            var _options = $.extend({animationDurationMs: 650, on: {}}, options);
+            var _options = $.extend({
+                animationDurationMs: 650,
+                on: {},
+                clone: function(original) {
+                    return original.clone(true);
+                }
+            }, options);
             
 
             //the main (parent) element
@@ -51,7 +57,9 @@ function UseHandCarousel() {
                 'resized': [],
                 'afterGenerated': [],
                 'afterDomBuilt': [],
-                'slided': []
+                'slided': [],
+                'slideStart': [],
+                'slideEnd': []
             }, _options.on);
 
             //Callback-trigger function
@@ -149,7 +157,7 @@ function UseHandCarousel() {
                 
                 var len = this.slideableElementsRessource.length;
                 for (var i=0; i<len*2; i++) {
-                    this.slideableElementsVirtual.push(this.slideableElementsRessource[i%len].clone(true));
+                    this.slideableElementsVirtual.push(_options.clone(this.slideableElementsRessource[i%len]));
                 }
                 
                 //now we need to add a UUID to every element
@@ -165,7 +173,7 @@ function UseHandCarousel() {
                 hcTriggerCallbacks('afterDomBuilt', this);
             };
             
-            this.correctifyCarouselDims = function(transitionTimeMs, slideType) {
+            this.correctifyCarouselDims = function(transitionTimeMs, slideType, animType) {
                 this.Locks.lock('slide');
                 //TODO: dont forget to use will-change in the css!
                 //set size and pos of virtual dom elements!
@@ -198,6 +206,7 @@ function UseHandCarousel() {
                         'height': this.lastDims.height+'px',
                         'display': isDirectNeighborOfActive ? 'block' : 'none',
                         'position': 'absolute',
+                        'opacity': !animType ? '1' : '0',
                         'top': 0
                     })
                     .elemQueue().add((function(leftPx, elemsCountTotal){
@@ -205,9 +214,8 @@ function UseHandCarousel() {
                             elem.data('lastX', leftPx);
                             
                             if (transitionTimeMs && transitionTimeMs > 0) {
-                                console.log('yes');
                                 elem.css({
-                                    'transition': 'all',
+                                    'transition': !animType ? 'transform' : 'opacity',
                                     'transition-duration': transitionTimeMs+'ms'
                                 });
                             } else {
@@ -220,7 +228,7 @@ function UseHandCarousel() {
                             } else {
                                 elem.css('z-index','');
                             }
-                            elem.css('transform', 'translate('+leftPx + 'px,0)');
+                            elem.css('transform', 'translate('+leftPx + 'px,0)').css('opacity','1');
                         };
                     }(iStartLeft + i*this.lastDims.width, this.slideableElementsVirtual.length)));
                 }
@@ -252,7 +260,8 @@ function UseHandCarousel() {
             
             //now collect the children to be slideable
             this.el.children(':not(.hc--ignore)').each(function(){
-                _this.slideableElementsRessource.push($(this).clone(true));
+                console.debug('DEEE',$(this)[0].outerHTML);
+                _this.slideableElementsRessource.push($(this));
             });
             this.el.html('');
             
@@ -272,7 +281,7 @@ function UseHandCarousel() {
                 return this.slideableElementsVirtual[this.slideableElementsVirtual.length/2];
             };
             
-            this.slide = function(type){
+            this.slide = function(type, animType){
                 if (this.Locks.isLocked('slide')) {
                     return false;
                 }
@@ -288,8 +297,9 @@ function UseHandCarousel() {
                     //snap back, dont change order!
                 }
                 
-                this.correctifyCarouselDims(_options.animationDurationMs, type);
+                this.correctifyCarouselDims(_options.animationDurationMs, type, animType);
                 setTimeout(function(){
+                    hcTriggerCallbacks('slideEnd', this);
                     hcTriggerCallbacks('slided', _this.getActiveSlide());
                 },_options.animationDurationMs);
             };
@@ -300,6 +310,39 @@ function UseHandCarousel() {
             
             this.slideRight = function() {
                 return this.slide('right');
+            };
+            
+            this.slideTo = function(slideGetter) {
+                var indx=0;
+                for (indx in this.slideableElementsVirtual) {
+                    if (slideGetter(this.slideableElementsVirtual[indx])) {
+                        //match!
+                        break;
+                    }
+                }
+                
+                var halfTotalElementsCount   = this.countSlides();
+                var diffCountToMiddle = halfTotalElementsCount-indx;
+                if (diffCountToMiddle==0) { 
+                    //fine!
+                } else if (diffCountToMiddle > 0) {
+                    //now remove diffCountToMiddle from right and add to front
+                    while (diffCountToMiddle > 0) {
+                        var popped = this.slideableElementsVirtual.pop();
+                        this.slideableElementsVirtual = [popped].concat(this.slideableElementsVirtual);
+                        diffCountToMiddle--;
+                    }
+                    
+                    this.slide('snap','fade');
+                } else {
+                    while (diffCountToMiddle < 0) {
+                        var shifted = this.slideableElementsVirtual.shift();
+                        this.slideableElementsVirtual.push(shifted);
+                        diffCountToMiddle++;
+                    }
+                    
+                    this.slide('snap','fade');
+                }
             };
             
             //Callback-Setters
@@ -342,6 +385,7 @@ function UseHandCarousel() {
                     consume();
                     Pointer.down = e;
                     Pointer.down.realRelativeOffsetX = event.clientX - _this.lastDims.offset.left;
+                    hcTriggerCallbacks('slideStart', this);
                 } else if (e.type=='pointermove' && Pointer.down!==false) {
                     consume();
                     var realRelativeOffsetX = (e.clientX - _this.lastDims.offset.left)-Pointer.down.realRelativeOffsetX;
