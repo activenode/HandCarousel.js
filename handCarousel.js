@@ -1,13 +1,4 @@
 function UseHandCarousel() {
-    window.animFrame = (function(){
-      return  window.requestAnimationFrame       ||
-              window.webkitRequestAnimationFrame ||
-              window.mozRequestAnimationFrame    ||
-              function( callback ){
-                window.setTimeout(callback, 1000 / 60);
-              };
-    })();
-
     (function($){
         //The Action takes an action to perform
         //if any other action is added, it is overwritten.
@@ -46,7 +37,8 @@ function UseHandCarousel() {
                 on: {},
                 clone: function(original) {
                     return original.clone(true);
-                }
+                },
+                slideSelector: '' //bind sliding to an inner child selector
             }, options);
             
 
@@ -369,7 +361,8 @@ function UseHandCarousel() {
                 _this.__onResize();
             });
             
-            $('body').on(bodyNsp, '#'+this.carouselId, function(e){
+            
+            $('body').on(bodyNsp, '#'+this.carouselId + _options.slideSelector, function(e){
                 console.debug(e);
 
                 if (_this.Locks.isLocked('slide')) {
