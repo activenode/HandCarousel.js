@@ -40,6 +40,9 @@ function UseHandCarousel() {
                 },
                 slideSelector: '' //bind sliding to an inner child selector
             }, options);
+            if (_options.slideSelector!='') {
+                _options.slideSelector = ' '+_options.slideSelector;
+            }
             
 
             //the main (parent) element
