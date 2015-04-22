@@ -30,7 +30,9 @@ HandCarousel will work out of the box but it will **NOT** style/design your slid
       
       <script>
         $(window).ready(UseHandCarousel);
-        var handCarousel = $('.my-slider').first().handCarousel();
+        var handCarousel = $('.my-slider').first().handCarousel({
+            slideSelector: '.elem-to-be-slided'
+        });
       </script>
     </body>
     ...
