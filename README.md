@@ -2,7 +2,7 @@
 A neat multi-device carousel-slider 
 
 ## IMPORTANT: DEPRECATED
-As of the discontinuation of the official HandJS (https://github.com/Deltakosh/handjs) in favor of PEP this carousel is not longer maintained!
+**As of the discontinuation of the official HandJS (https://github.com/Deltakosh/handjs) in favor of PEP this carousel is not longer maintained and may NOT work anymore with the latest libraries of either HandJS or JQuery.**
 
 ## Dependencies
 - Hand.js Polyfill https://handjs.codeplex.com/ 
